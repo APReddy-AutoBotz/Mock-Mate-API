@@ -3,7 +3,17 @@ import { PERSONAS_CONFIG } from '../personas.config';
 import type { FinalReport, InterviewPlan, InterviewTurn, QuestionBlueprint, SessionContext, SessionControls } from '../types';
 import { APIError, ValidationError, handleAPIError } from '../utils/errorHandler';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || process.env.API_KEY || '' });
+const getApiKey = () => {
+    // Check various common Vite/Process patterns for robustness
+    return (import.meta as any).env?.VITE_GEMINI_API_KEY ||
+        (import.meta as any).env?.GEMINI_API_KEY ||
+        process.env.VITE_GEMINI_API_KEY ||
+        process.env.GEMINI_API_KEY ||
+        (window as any).VITE_GEMINI_API_KEY ||
+        '';
+};
+
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
 const getResponseText = (response: any): string => {
     if (!response) return '';
