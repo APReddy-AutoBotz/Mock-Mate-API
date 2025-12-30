@@ -75,6 +75,7 @@ export interface QuestionBlueprint {
     sourceBullets: string[];
     estTimeSec: number;
     language?: string;
+    timeAllocation?: number; // Premium Enhancement: AI-estimated realistic time for this question
 }
 
 export interface InterviewPlan {
