@@ -6,6 +6,7 @@ interface SessionBuilderProps {
     jdInsights: JDInsights;
     competencyWeights: CompetencyWeight[];
     questionSet?: QuestionBlueprint[];
+    researchLinks?: { uri: string; title: string; }[];
     onAdjustSpecs?: () => void;
     onInitialize?: () => void;
 }
