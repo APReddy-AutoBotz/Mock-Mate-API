@@ -17,13 +17,12 @@ interface SessionPrepProps {
 
 const defaultControls: SessionControls = {
     totalQuestions: 7,
-    difficulty: 'mixed',
-    startWithBasics: true,
+    difficulty: 'intermediate',
     includeBehavioral: true,
     includeCoding: false,
-    phaseMix: { knowledge: 0.4, process: 0.3, scenario: 0.3, coding: 0 },
     timePerQuestion: '90s',
     sessionMode: 'exam',
+    sourceMode: 'job_description'
 };
 
 const FileDropZone: React.FC<{ onFileTextExtracted: (text: string) => void }> = ({ onFileTextExtracted }) => {
@@ -36,7 +35,7 @@ const FileDropZone: React.FC<{ onFileTextExtracted: (text: string) => void }> = 
     };
 
     return (
-        <div 
+        <div
             onClick={() => fileInputRef.current?.click()}
             className="w-full py-8 px-10 border border-dashed border-white/10 rounded-2xl bg-white/[0.02] hover:bg-white/[0.05] transition-all cursor-pointer flex items-center justify-center gap-4 group"
         >
@@ -62,7 +61,7 @@ const SessionPrep: React.FC<SessionPrepProps> = ({ onContextReady, context, onGo
         const init = async () => {
             const { recommendedPanelIDs, recommendedRole } = await mockGeminiService.calibrateIntent(context.intentText);
             setSelectedPanelIDs(recommendedPanelIDs);
-            setCurrentContext(prev => ({...prev, candidateRole: recommendedRole, selectedPanelIDs: recommendedPanelIDs }));
+            setCurrentContext(prev => ({ ...prev, candidateRole: recommendedRole, selectedPanelIDs: recommendedPanelIDs }));
             setIsLoading(false);
         };
         init();
@@ -93,12 +92,12 @@ const SessionPrep: React.FC<SessionPrepProps> = ({ onContextReady, context, onGo
             <AnimatePresence mode="wait">
                 {!isPlanReady ? (
                     <motion.div key="prep" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-3xl space-y-10">
-                        <FileDropZone onFileTextExtracted={() => {}} />
+                        <FileDropZone onFileTextExtracted={() => { }} />
                         <PanelSelector selectedPanelIDs={selectedPanelIDs} onSelectionChange={setSelectedPanelIDs} />
-                        
+
                         {/* Advanced Parameters Bar */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
-                            <button 
+                            <button
                                 onClick={() => { audioService.playConfirm(); setShowCustomization(!showCustomization); }}
                                 className="w-full px-8 py-6 flex justify-between items-center hover:bg-white/5 transition-all"
                             >
@@ -125,9 +124,9 @@ const SessionPrep: React.FC<SessionPrepProps> = ({ onContextReady, context, onGo
                 ) : (
                     <motion.div key="blueprint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-4xl space-y-8">
                         {plan && (
-                            <SessionBuilder 
-                                jdInsights={plan.jdInsights} 
-                                competencyWeights={Object.entries(plan.jdInsights?.competencyWeights || {}).map(([k,v]) => ({competency:k, weight:v as number}))} 
+                            <SessionBuilder
+                                jdInsights={plan.jdInsights}
+                                competencyWeights={Object.entries(plan.jdInsights?.competencyWeights || {}).map(([k, v]) => ({ competency: k, weight: v as number }))}
                             />
                         )}
                         <div className="flex gap-4">
