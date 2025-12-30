@@ -15,30 +15,42 @@ const sectionAnimation = {
 const PersonaScoreCard: React.FC<{ advisory: AdvisorAssessment[] }> = React.memo(({ advisory }) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {advisory.map((adv, i) => {
-            const personaDetails = useMemo(() => PERSONAS_CONFIG.find(p => p.name === adv.persona.split('—')[0].trim()), [adv.persona]);
+            const personaNameOnly = adv.persona.split('—')[0].split('(')[0].trim();
+            const personaDetails = useMemo(() => PERSONAS_CONFIG.find(p => p.name.toLowerCase().includes(personaNameOnly.toLowerCase())), [personaNameOnly]);
             const Icon = personaDetails?.icon;
+            const accentColor = personaDetails?.color || 'info-blue';
 
             return (
                 <motion.div
                     key={i}
                     {...sectionAnimation}
-                    className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 flex flex-col gap-4"
+                    className="bg-[#0A192F]/40 backdrop-blur-3xl border border-white/10 rounded-3xl p-8 flex flex-col gap-6 relative overflow-hidden group hover:border-white/20 transition-all"
                 >
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            {Icon && (
-                                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                                    <Icon className="w-5 h-5 text-white opacity-80" />
-                                </div>
-                            )}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.02] rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-white/[0.05] transition-colors" />
+                    <div className="flex items-start justify-between relative z-10">
+                        <div className="flex items-center gap-4">
+                            <div className={`w-14 h-14 rounded-2xl bg-${accentColor}/10 border border-${accentColor}/20 flex items-center justify-center shadow-2xl`}>
+                                {Icon ? <Icon className="w-7 h-7 text-white opacity-90" /> : <span className="text-white text-xl">💬</span>}
+                            </div>
                             <div className="flex flex-col">
-                                <span className="text-sm font-bold text-white">{adv.persona}</span>
-                                <span className="text-[10px] font-black uppercase text-text-secondary opacity-40">Advisory Verdict</span>
+                                <span className="text-base font-black text-white tracking-tight">{adv.persona}</span>
+                                <span className="text-[10px] font-black uppercase text-info-blue tracking-widest opacity-60 mt-1">Strategic Verdict</span>
                             </div>
                         </div>
-                        <div className="text-2xl font-black text-action-teal">{adv.scores?.[0]?.score || (adv as any).score || '-'}<span className="text-[10px] text-white/20">/5</span></div>
+                        <div className="flex flex-col items-end">
+                            <div className="text-3xl font-black text-white leading-none">{adv.scores?.[0]?.score || (adv as any).score || '-'}<span className="text-[10px] text-white/20 ml-1">/5</span></div>
+                            <div className="w-full h-1 bg-white/5 mt-2 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    whileInView={{ width: `${((adv.scores?.[0]?.score || (adv as any).score || 0) / 5) * 100}%` }}
+                                    className={`h-full bg-${accentColor}`}
+                                />
+                            </div>
+                        </div>
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed italic opacity-80">"{adv.summary}"</p>
+                    <p className="text-[13px] text-text-secondary leading-relaxed italic font-medium opacity-90 border-l-2 border-white/5 pl-4 py-1">
+                        "{adv.summary}"
+                    </p>
                 </motion.div>
             );
         })}

@@ -29,8 +29,11 @@ const ArenaBlueprint: React.FC<SessionBuilderProps> = ({ jdInsights, competencyW
         const rawWeight = w.weight;
         const displayPercentage = rawWeight <= 1 ? rawWeight * 100 : rawWeight;
 
+        // Split CamelCase into Space Case
+        const formattedLabel = w.competency.replace(/([A-Z])/g, ' $1').trim();
+
         return {
-            label: w.competency,
+            label: formattedLabel,
             percentage: displayPercentage,
             color: (BAR_COLORS as any)[w.competency] || '#94A3B8'
         };
@@ -81,18 +84,18 @@ const ArenaBlueprint: React.FC<SessionBuilderProps> = ({ jdInsights, competencyW
                 <div className="absolute -top-24 -right-24 w-96 h-96 bg-action-teal/5 rounded-full blur-[120px]" />
                 <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-info-blue/5 rounded-full blur-[120px]" />
 
-                <header className="mb-24 flex flex-col items-start text-left">
-                    <div className={`mb-8 px-5 py-2 border ${sourceMeta.border} rounded-full inline-flex items-center gap-3 bg-white/[0.03]`}>
-                        <div className={`w-2 h-2 rounded-full bg-current ${sourceMeta.color} animate-pulse`} />
-                        <span className={`text-[11px] font-black uppercase tracking-[0.3em] ${sourceMeta.color}`}>
+                <header className="mb-20 flex flex-col items-center text-center">
+                    <div className={`mb-10 px-6 py-2.5 border ${sourceMeta.border} rounded-full inline-flex items-center gap-4 bg-white/[0.04] backdrop-blur-3xl shadow-2xl`}>
+                        <div className={`w-2.5 h-2.5 rounded-full bg-current ${sourceMeta.color} animate-pulse shadow-[0_0_15px_rgba(20,200,176,0.4)]`} />
+                        <span className={`text-[12px] font-black uppercase tracking-[0.4em] ${sourceMeta.color}`}>
                             {sourceMeta.label}
                         </span>
                     </div>
-                    <h2 className="text-6xl md:text-7xl font-serif font-black text-white mb-8 tracking-tighter leading-none">
+                    <h2 className="text-5xl md:text-7xl font-serif font-black text-white mb-8 tracking-tight leading-tight">
                         Prepare Your Session
                     </h2>
-                    <p className="text-text-secondary text-xl max-w-3xl leading-relaxed font-semibold opacity-60">
-                        We've selected a recommended panel for you. Upload a JD or a Question Bank for a tailored plan.
+                    <p className="text-text-secondary text-lg max-w-2xl leading-relaxed font-medium opacity-60 italic">
+                        The arena is ready. We've optimized the panel and questions based on your unique scenario.
                     </p>
                 </header>
 
@@ -104,7 +107,7 @@ const ArenaBlueprint: React.FC<SessionBuilderProps> = ({ jdInsights, competencyW
                             <p className="text-text-secondary font-semibold opacity-40">We've analyzed your goal and generated a tailored interview plan.</p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-20 gap-y-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-16 gap-y-12">
                             <CategoryBlock title="Must-Have Skills" items={jdInsights.mustHaveSkills} />
                             <CategoryBlock title="Nice-To-Have Skills" items={jdInsights.niceToHave} />
                             <CategoryBlock title="Domains" items={jdInsights.domains} />

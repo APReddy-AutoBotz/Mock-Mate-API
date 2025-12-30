@@ -49,8 +49,7 @@ const MockSession: React.FC<MockSessionProps> = ({ sessionContext, onReportGener
                     if (firstQuestion && firstQuestion.question) {
                         setCurrentBlueprint(firstQuestion);
                         setCurrentQuestion(firstQuestion.question);
-                        personaId = Object.entries(firstQuestion.personaWeights || {})
-                            .sort((a, b) => (b[1] as number) - (a[1] as number))[0]?.[0] || sessionContext.selectedPanelIDs[0] || 'p1';
+                        personaId = firstQuestion.personaFocus || sessionContext.selectedPanelIDs[0] || 'p1';
                         setCurrentPersonaId(personaId);
                         qText = firstQuestion.question;
                     }
@@ -181,8 +180,7 @@ const MockSession: React.FC<MockSessionProps> = ({ sessionContext, onReportGener
                 if (blueprint && blueprint.question) {
                     setCurrentBlueprint(blueprint);
                     setCurrentQuestion(blueprint.question);
-                    const pId = Object.entries(blueprint.personaWeights || {})
-                        .sort((a, b) => (b[1] as number) - (a[1] as number))[0]?.[0] || localContext.selectedPanelIDs[0] || 'p1';
+                    const pId = blueprint.personaFocus || localContext.selectedPanelIDs[currentQuestionIndex.current % localContext.selectedPanelIDs.length] || 'p1';
                     setCurrentPersonaId(pId);
                     audioService.playNotify();
                     setSessionPhase('asking');
@@ -303,7 +301,7 @@ const MockSession: React.FC<MockSessionProps> = ({ sessionContext, onReportGener
                                         <div className="flex-grow overflow-y-auto custom-scrollbar p-10 space-y-10">
                                             {/* Persona Profile */}
                                             <div className="flex items-center gap-5">
-                                                <div className="w-16 h-16 rounded-full flex items-center justify-center bg-action-teal/10 border border-action-teal/20 shadow-2xl">
+                                                <div className={`w-16 h-16 rounded-full flex items-center justify-center bg-${currentPersona.color}/10 border border-${currentPersona.color}/20 shadow-2xl`}>
                                                     {PersonaIcon && <PersonaIcon className="w-9 h-9 text-white opacity-80" />}
                                                 </div>
                                                 <div className="flex flex-col">
@@ -374,7 +372,7 @@ const MockSession: React.FC<MockSessionProps> = ({ sessionContext, onReportGener
                                 <div className="flex-grow w-full flex flex-col items-center justify-center p-8 bg-[#010912]">
                                     <div className="max-w-2xl w-full flex flex-col items-center text-center space-y-8">
                                         <div className="flex flex-col items-center space-y-4">
-                                            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-[#EA580C]/5 border border-[#EA580C]/20 shadow-[0_0_50px_rgba(234,88,12,0.1)]">
+                                            <div className={`w-20 h-20 rounded-full flex items-center justify-center bg-${currentPersona.color}/5 border border-${currentPersona.color}/20 shadow-[0_0_50px_rgba(234,88,12,0.1)]`}>
                                                 {PersonaIcon && <PersonaIcon className="w-10 h-10 text-white opacity-90" />}
                                             </div>
                                             <div className="space-y-1">

@@ -265,8 +265,9 @@ export const generateInterviewPlanV2 = async (
     const sourcePrompt = sessionControls.sourceMode === 'question_bank'
         ? `STRICT MODE: The provided text is a QUESTION BANK or STUDY MATERIAL. 
            - You MUST extract questions or concepts directly from this text.
-           - You may rephrase them for clarity or turn them into scenarios, but DO NOT invent topics not present in the text.
-           - If the text contains specific questions, ask those exact concepts.`
+           - DO NOT use external sources or standard interview questions unless they are present in the text.
+           - You may rephrase them for clarity or turn them into scenarios, but the core 'Technical Truth' must come from the input.
+           - If the input is a list of questions, rotate through them for the plan.`
         : `EXPLORATION MODE: Use the provided Job Description as a baseline.
            - Search for RECENT (last 12 months) interview questions for this role.
            - identifying trending topics not explicitly in the JD but standard for the industry.`;
@@ -536,7 +537,17 @@ export const generateFinalReport = async (
     const COMPETENCY_LIST = ["DomainKnowledge", "MethodsTools", "ProcessCompliance", "ScenarioDecision", "BehavioralComms"];
     const targetCompetencies = COMPETENCY_LIST.join(", ");
 
+    const selectedPersonas = PERSONAS_CONFIG.filter(p => context.selectedPanelIDs?.includes(p.id));
+    const panelNames = selectedPersonas.map(p => `${p.name} (${p.title})`).join(", ");
+
     const masterPrompt = `You are a world-class Interview Bar Raiser. Analyze this mock interview session and generate a "Hiring Committee" report.
+    
+    PANEL OF EXPERTS:
+    ${selectedPersonas.map(p => `- ${p.name} (${p.title}): ${p.focus}`).join('\n')}
+
+    THE DEBATE:
+    You must simulate a discussion between exactly these people: ${panelNames}. 
+    Each should have a different perspective based on their focus area.
 
     CONTEXT:
     Role: ${roleParam}

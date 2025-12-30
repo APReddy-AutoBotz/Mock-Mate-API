@@ -62,7 +62,7 @@ export interface QuestionBlueprint {
     expectedSignals: string[];
     failureModes: string[];
     evaluationCriteria?: string[];
-    personaWeights: { [key: string]: number };
+    personaFocus?: string;
     rubric: {
         [key: string]: {
             score1: string[];
