@@ -1,11 +1,10 @@
-
-import { motion } from 'framer-motion';
-import { JDInsights, CompetencyWeight } from '../types';
+import { JDInsights, CompetencyWeight, QuestionBlueprint } from '../types';
 import React from 'react';
 
 interface SessionBuilderProps {
     jdInsights: JDInsights;
     competencyWeights: CompetencyWeight[];
+    questionSet?: QuestionBlueprint[];
     onAdjustSpecs?: () => void;
     onInitialize?: () => void;
 }
