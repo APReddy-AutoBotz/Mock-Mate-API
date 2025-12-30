@@ -347,14 +347,32 @@ export const generateInterviewPlanV2 = async (
             { intentText, operation: 'generateInterviewPlan' }
         );
 
-        const plan = extractJson(getResponseText(response) || '{}');
-        if (!plan || !plan.questionSet) throw new Error("AI returned incomplete plan structure");
+        const rawPlan = extractJson(getResponseText(response) || '{}');
+        if (!rawPlan || !rawPlan.questionSet) throw new Error("AI returned incomplete plan structure");
+
+        // Data Normalization (Ensures UI reliability)
+        const plan: InterviewPlan = {
+            ...rawPlan,
+            jdInsights: {
+                role: rawPlan.jdInsights?.role || "Awaiting Role Confirmation",
+                level: rawPlan.jdInsights?.level || "Unspecified Level",
+                mustHaveSkills: rawPlan.jdInsights?.mustHaveSkills || rawPlan.jdInsights?.skills || [],
+                niceToHave: rawPlan.jdInsights?.niceToHave || [],
+                domains: rawPlan.jdInsights?.domains || [],
+                tools: rawPlan.jdInsights?.tools || rawPlan.jdInsights?.technologies || [],
+                softSkills: rawPlan.jdInsights?.softSkills || [],
+                competencyWeights: rawPlan.jdInsights?.competencyWeights || {
+                    DomainKnowledge: 0.2, MethodsTools: 0.2, ProcessCompliance: 0.2, ScenarioDecision: 0.2, BehavioralComms: 0.2
+                },
+                source: sessionControls.sourceMode === 'question_bank' ? 'questionBank' : 'realJD'
+            }
+        };
 
         // Save new questions to history for future exclusion
         const newQuestions = plan.questionSet.map((q: any) => q.question);
         questionHistoryService.saveQuestions(newQuestions);
 
-        return plan as InterviewPlan;
+        return plan;
 
     } catch (err) {
         console.error("Plan Generation Failed", err);
