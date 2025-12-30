@@ -264,13 +264,13 @@ export const generateInterviewPlanV2 = async (
 
     const sourcePrompt = sessionControls.sourceMode === 'question_bank'
         ? `STRICT MODE: The provided text is a QUESTION BANK or STUDY MATERIAL. 
-           - You MUST extract questions or concepts directly from this text.
-           - DO NOT use external sources or standard interview questions unless they are present in the text.
-           - You may rephrase them for clarity or turn them into scenarios, but the core 'Technical Truth' must come from the input.
-           - If the input is a list of questions, rotate through them for the plan.`
+           - You MUST extract specific questions or technical concepts DIRECTLY from this text.
+           - DO NOT use external sources or standard interview questions unless they are explicitly present in the input.
+           - You may rephrase for readability, but NEVER introduce new topics not found in the material.
+           - If the input is a list of questions, you MUST rotate through them for the plan.`
         : `EXPLORATION MODE: Use the provided Job Description as a baseline.
-           - Search for RECENT (last 12 months) interview questions for this role.
-           - identifying trending topics not explicitly in the JD but standard for the industry.`;
+           - Act as a world-class headhunter. Search for RECENT (last 12 months) interview questions for this role.
+           - Identify trending topics and "Industry Truths" not explicitly in the JD but standard for this professional tier.`;
 
     const masterPrompt = `You are an expert interview strategist. Create a comprehensive interview plan.
     
@@ -280,14 +280,15 @@ export const generateInterviewPlanV2 = async (
     Difficulty: ${sessionControls.difficulty.toUpperCase()} (${difficultyPrompt})
     ${codingInstruction}
     
-    PANEL:
-    ${selectedPersonas.map(p => `- ${p.name} (${p.title}): ${p.focus}`).join('\n')}
+    PANEL OF EXPERTS (YOU MUST ROTATE THROUGH THESE IDs):
+    ${selectedPersonas.map(p => `- ID: ${p.id} | Name: ${p.name} (${p.title}): ${p.focus}`).join('\n')}
 
     INPUT MATERIAL:
     ${jdText ? `"""\n${jdText}\n"""` : 'None'}
 
     CONTROLS:
     - Total Questions: ${sessionControls.totalQuestions}
+    - MANDATORY: Every persona in the panel MUST be assigned as 'personaFocus' for at least one question.
     - Anti-Repetition: Do NOT ask these recently asked questions: ${JSON.stringify(excludedQuestions.slice(0, 20))}
     
     TASK:

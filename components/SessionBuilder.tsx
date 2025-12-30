@@ -27,24 +27,39 @@ const BlueprintCategory: React.FC<{
 }> = ({ title, items, colorClass, delay = 0 }) => {
     if (!items || items.length === 0) return null;
 
+    // Genius PM Fix: Limit to 10 items for visual consistency, but with a flexible layout
+    const displayItems = items.slice(0, 10);
+    const hasMore = items.length > 10;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay, duration: 0.5 }}
-            className="space-y-4"
+            className="space-y-6"
         >
             <div className="flex items-center gap-3">
                 <div className={`w-1 h-3 rounded-full ${colorClass}`} />
                 <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-white opacity-40">{title}</h4>
             </div>
-            <ul className="space-y-2 pl-4">
-                {items.map((item, idx) => (
-                    <li key={idx} className="text-[13px] text-text-secondary font-medium list-disc marker:text-white/20">
+            <div className="flex flex-wrap gap-2 pl-4">
+                {displayItems.map((item, idx) => (
+                    <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: delay + (idx * 0.05) }}
+                        className="px-3 py-1.5 bg-white/[0.03] border border-white/10 rounded-lg text-[12px] text-text-secondary font-medium whitespace-nowrap hover:bg-white/5 transition-colors"
+                    >
                         {item}
-                    </li>
+                    </motion.div>
                 ))}
-            </ul>
+                {hasMore && (
+                    <div className="px-3 py-1.5 text-[10px] text-white/30 font-black uppercase tracking-widest self-center">
+                        + {items.length - 10} More
+                    </div>
+                )}
+            </div>
         </motion.div>
     );
 };

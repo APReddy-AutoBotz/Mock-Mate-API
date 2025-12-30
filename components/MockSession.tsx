@@ -180,7 +180,15 @@ const MockSession: React.FC<MockSessionProps> = ({ sessionContext, onReportGener
                 if (blueprint && blueprint.question) {
                     setCurrentBlueprint(blueprint);
                     setCurrentQuestion(blueprint.question);
-                    const pId = blueprint.personaFocus || localContext.selectedPanelIDs[currentQuestionIndex.current % localContext.selectedPanelIDs.length] || 'p1';
+
+                    // Genius PM Fix: Robust Persona Resolver
+                    let pId = blueprint.personaFocus;
+                    // If the AI returns a name instead of ID, or if ID is invalid, fallback to rotation
+                    const personaExists = PERSONAS_CONFIG.some(p => p.id === pId);
+                    if (!personaExists || !pId) {
+                        pId = localContext.selectedPanelIDs[currentQuestionIndex.current % localContext.selectedPanelIDs.length] || 'p1';
+                    }
+
                     setCurrentPersonaId(pId);
                     audioService.playNotify();
                     setSessionPhase('asking');
