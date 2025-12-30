@@ -11,58 +11,16 @@ interface SessionBuilderProps {
     onInitialize?: () => void;
 }
 
-const BAR_COLORS: Record<string, string> = {
-    'DomainKnowledge': '#14C8B0',
-    'MethodsTools': '#38BDF8',
-    'ProcessCompliance': '#FBBF24',
-    'ScenarioDecision': '#F86A6A',
-    'BehavioralComms': '#A78BFA'
-};
-
-const BlueprintCategory: React.FC<{
-    title: string;
-    items: string[];
-    colorClass: string;
-    delay?: number;
-}> = ({ title, items, colorClass, delay = 0 }) => {
-    if (!items || items.length === 0) return null;
-
-    // Genius PM Fix: Limit to 10 items for visual consistency, but with a flexible layout
-    const displayItems = items.slice(0, 10);
-    const hasMore = items.length > 10;
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay, duration: 0.5 }}
-            className="space-y-6"
-        >
-            <div className="flex items-center gap-3">
-                <div className={`w-1 h-3 rounded-full ${colorClass}`} />
-                <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-white opacity-40">{title}</h4>
-            </div>
-            <div className="flex flex-wrap gap-2 pl-4">
-                {displayItems.map((item, idx) => (
-                    <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: delay + (idx * 0.05) }}
-                        className="px-3 py-1.5 bg-white/[0.03] border border-white/10 rounded-lg text-[12px] text-text-secondary font-medium whitespace-nowrap hover:bg-white/5 transition-colors"
-                    >
-                        {item}
-                    </motion.div>
-                ))}
-                {hasMore && (
-                    <div className="px-3 py-1.5 text-[10px] text-white/30 font-black uppercase tracking-widest self-center">
-                        + {items.length - 10} More
-                    </div>
-                )}
-            </div>
-        </motion.div>
-    );
-};
+const SkillChip: React.FC<{ label: string; index: number }> = ({ label, index }) => (
+    <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: index * 0.03, duration: 0.3 }}
+        className="px-4 py-2 bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-xl text-sm text-white font-medium hover:border-action-teal/50 hover:bg-white/15 transition-all cursor-default"
+    >
+        {label}
+    </motion.div>
+);
 
 const ArenaBlueprint: React.FC<SessionBuilderProps> = ({
     jdInsights,
@@ -71,104 +29,242 @@ const ArenaBlueprint: React.FC<SessionBuilderProps> = ({
     onInitialize = () => { }
 }) => {
 
+    const isQuestionBank = jdInsights.source === 'questionBank';
+
+    // Ensure we always have data to display
+    const skills = jdInsights.mustHaveSkills?.length > 0 ? jdInsights.mustHaveSkills : ['General Technical Skills'];
+    const domains = jdInsights.domains?.length > 0 ? jdInsights.domains : ['Cross-Functional Domain'];
+    const tools = jdInsights.tools?.length > 0 ? jdInsights.tools : ['Industry Standard Tools'];
+    const softSkills = jdInsights.softSkills?.length > 0 ? jdInsights.softSkills : ['Communication', 'Problem Solving'];
+
     const weightData = (competencyWeights || []).map((w) => {
         const rawWeight = w.weight;
         const displayPercentage = rawWeight <= 1 ? rawWeight * 100 : rawWeight;
         const formattedLabel = w.competency.replace(/([A-Z])/g, ' $1').trim();
 
+        const colorMap: Record<string, string> = {
+            'DomainKnowledge': '#14C8B0',
+            'MethodsTools': '#38BDF8',
+            'ProcessCompliance': '#FBBF24',
+            'ScenarioDecision': '#F86A6A',
+            'BehavioralComms': '#A78BFA'
+        };
+
         return {
             label: formattedLabel,
-            percentage: displayPercentage,
-            color: BAR_COLORS[w.competency] || '#94A3B8'
+            percentage: Math.round(displayPercentage),
+            color: colorMap[w.competency] || '#94A3B8'
         };
     });
 
-    const isQuestionBank = jdInsights.source === 'questionBank';
-
     return (
-        <div className="w-full max-w-6xl mx-auto py-12 px-6">
+        <div className="w-full min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#010912] via-[#020B14] to-[#010912]">
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-[#020B14] rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl relative"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="w-full max-w-7xl"
             >
-                {/* Subtle Header */}
-                <div className="bg-white/[0.02] border-b border-white/5 py-12 px-10 text-center">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className={`px-4 py-1.5 rounded-full border ${isQuestionBank ? 'border-accent-amber/30 text-accent-amber bg-accent-amber/5' : 'border-info-blue/30 text-info-blue bg-info-blue/5'} text-[10px] font-black uppercase tracking-widest`}>
-                            {isQuestionBank ? 'Simulation Mode Active' : 'JD Calibration Complete'}
+                {/* Premium Header Card */}
+                <div className="bg-gradient-to-br from-[#0A192F]/90 to-[#020B14]/90 backdrop-blur-3xl border border-white/10 rounded-[3rem] overflow-hidden shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
+
+                    {/* Status Banner */}
+                    <div className="bg-gradient-to-r from-white/5 to-transparent border-b border-white/10 px-12 py-6 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className={`w-3 h-3 rounded-full ${isQuestionBank ? 'bg-accent-amber' : 'bg-action-teal'} shadow-lg shadow-current/50 animate-pulse`} />
+                            <span className={`text-xs font-black uppercase tracking-[0.3em] ${isQuestionBank ? 'text-accent-amber' : 'text-action-teal'}`}>
+                                {isQuestionBank ? '⚡ Simulation Mode' : '🎯 Job Description Analysis'}
+                            </span>
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-serif font-black text-white tracking-tight">
-                            Arena Blueprint
-                        </h2>
-                        <div className="flex items-center gap-6 mt-2 opacity-60">
-                            <span className="text-xs font-bold text-white uppercase tracking-widest">{jdInsights.role || "Target Role"}</span>
-                            <div className="w-1 h-1 rounded-full bg-white/20" />
-                            <span className="text-xs font-bold text-action-teal uppercase tracking-widest">{jdInsights.level || "Expert"} Tier</span>
+                        <div className="text-xs font-mono text-white/40 uppercase tracking-widest">
+                            Session Protocol
                         </div>
                     </div>
-                </div>
 
-                <div className="p-10 md:p-16 space-y-20">
-                    {/* Main Content Grid */}
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                    {/* Main Header */}
+                    <div className="text-center py-16 px-12 border-b border-white/5">
+                        <motion.h1
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-6xl md:text-7xl font-serif font-black text-white mb-6 tracking-tight"
+                        >
+                            Arena Blueprint
+                        </motion.h1>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="flex items-center justify-center gap-6 text-lg"
+                        >
+                            <span className="text-white/60 font-bold uppercase tracking-wider">
+                                {jdInsights.role || 'Technical Professional'}
+                            </span>
+                            <div className="w-2 h-2 rounded-full bg-action-teal/50" />
+                            <span className="text-action-teal font-black uppercase tracking-wider">
+                                {jdInsights.level || 'Intermediate'} Level
+                            </span>
+                        </motion.div>
+                    </div>
 
-                        {/* Primary Knowledge Pillars */}
-                        <div className="lg:col-span-8 space-y-12">
-                            <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] opacity-20 border-b border-white/5 pb-4">Protocol Focus Areas</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                                <BlueprintCategory title="Must-Have Skills" items={jdInsights.mustHaveSkills} colorClass="bg-action-teal" delay={0.1} />
-                                <BlueprintCategory title="Domain Expertise" items={jdInsights.domains} colorClass="bg-info-blue" delay={0.2} />
-                                <BlueprintCategory title="Technical Stack" items={jdInsights.tools} colorClass="bg-action-teal" delay={0.3} />
-                                <BlueprintCategory title="Soft & Interpersonal" items={jdInsights.softSkills} colorClass="bg-accent-amber" delay={0.4} />
-                            </div>
+                    {/* Main Content */}
+                    <div className="p-12 md:p-20 space-y-16">
+
+                        {/* Skills Matrix */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+                            {/* Core Competencies */}
+                            <motion.div
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="space-y-8"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-1 h-8 bg-gradient-to-b from-action-teal to-transparent rounded-full" />
+                                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">
+                                        Core Competencies
+                                    </h3>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {skills.map((skill, idx) => (
+                                        <SkillChip key={idx} label={skill} index={idx} />
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-4 mt-12">
+                                    <div className="w-1 h-8 bg-gradient-to-b from-info-blue to-transparent rounded-full" />
+                                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">
+                                        Domain Expertise
+                                    </h3>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {domains.map((domain, idx) => (
+                                        <SkillChip key={idx} label={domain} index={idx} />
+                                    ))}
+                                </div>
+                            </motion.div>
+
+                            {/* Technical & Soft Skills */}
+                            <motion.div
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.6 }}
+                                className="space-y-8"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-1 h-8 bg-gradient-to-b from-accent-amber to-transparent rounded-full" />
+                                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">
+                                        Technical Stack
+                                    </h3>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {tools.map((tool, idx) => (
+                                        <SkillChip key={idx} label={tool} index={idx} />
+                                    ))}
+                                </div>
+
+                                <div className="flex items-center gap-4 mt-12">
+                                    <div className="w-1 h-8 bg-gradient-to-b from-[#A78BFA] to-transparent rounded-full" />
+                                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">
+                                        Leadership & Soft Skills
+                                    </h3>
+                                </div>
+                                <div className="flex flex-wrap gap-3">
+                                    {softSkills.map((skill, idx) => (
+                                        <SkillChip key={idx} label={skill} index={idx} />
+                                    ))}
+                                </div>
+                            </motion.div>
                         </div>
 
-                        {/* Lateral Assessment Weights */}
-                        <div className="lg:col-span-4 space-y-12">
-                            <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] opacity-20 border-b border-white/5 pb-4">Weight Distribution</h3>
-                            <div className="space-y-8 bg-white/[0.02] p-8 rounded-3xl border border-white/5">
+                        {/* Assessment Vectors */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.7 }}
+                            className="bg-white/[0.02] border border-white/10 rounded-3xl p-12 space-y-10"
+                        >
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-1 h-8 bg-gradient-to-b from-white/50 to-transparent rounded-full" />
+                                    <h3 className="text-sm font-black text-white uppercase tracking-[0.3em]">
+                                        Assessment Focus Distribution
+                                    </h3>
+                                </div>
+                                <div className="text-xs text-white/30 font-mono uppercase tracking-wider">
+                                    Weighted Vectors
+                                </div>
+                            </div>
+
+                            <div className="space-y-8">
                                 {weightData.map((item, i) => (
-                                    <div key={i} className="space-y-3">
-                                        <div className="flex justify-between items-end">
-                                            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{item.label}</span>
-                                            <span className="text-xs font-mono font-bold text-white/60">{item.percentage}%</span>
+                                    <motion.div
+                                        key={i}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: 0.8 + (i * 0.1) }}
+                                        className="space-y-3"
+                                    >
+                                        <div className="flex justify-between items-baseline">
+                                            <span className="text-sm font-bold text-white uppercase tracking-widest">
+                                                {item.label}
+                                            </span>
+                                            <span className="text-2xl font-black text-white font-mono">
+                                                {item.percentage}<span className="text-base text-white/40">%</span>
+                                            </span>
                                         </div>
-                                        <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                        <div className="h-3 bg-white/5 rounded-full overflow-hidden relative">
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${item.percentage}%` }}
-                                                transition={{ delay: 0.5 + (i * 0.1), duration: 1 }}
-                                                className="h-full rounded-full"
-                                                style={{ backgroundColor: item.color }}
+                                                transition={{ delay: 1 + (i * 0.1), duration: 1, ease: "easeOut" }}
+                                                className="h-full rounded-full shadow-lg"
+                                                style={{
+                                                    backgroundColor: item.color,
+                                                    boxShadow: `0 0 20px ${item.color}40`
+                                                }}
                                             />
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
-                                <div className="pt-6 border-t border-white/5 mt-4">
-                                    <p className="text-[11px] text-text-secondary leading-relaxed italic opacity-50">
-                                        Prioritizing <span className="text-white font-bold">{weightData.sort((a, b) => b.percentage - a.percentage)[0].label}</span> as the critical success vector.
+                            </div>
+
+                            {weightData.length > 0 && (
+                                <div className="pt-8 border-t border-white/10">
+                                    <p className="text-sm text-text-secondary leading-relaxed">
+                                        <span className="text-white/40">Primary Focus:</span>{' '}
+                                        <span className="text-white font-bold">
+                                            {weightData.sort((a, b) => b.percentage - a.percentage)[0].label}
+                                        </span>
+                                        {' '}will be the dominant evaluation criterion for this session.
                                     </p>
                                 </div>
-                            </div>
-                        </div>
+                            )}
+                        </motion.div>
 
-                    </div>
-
-                    {/* Simple Bottom Actions */}
-                    <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t border-white/5">
-                        <button
-                            onClick={onAdjustSpecs}
-                            className="flex-1 bg-white/5 text-white/50 font-black py-5 rounded-2xl hover:bg-white/10 hover:text-white transition-all text-[11px] tracking-widest uppercase border border-white/5"
+                        {/* Action Buttons */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 1.2 }}
+                            className="flex flex-col sm:flex-row gap-6 pt-8"
                         >
-                            Adjust Parameters
-                        </button>
-                        <button
-                            onClick={onInitialize}
-                            className="flex-[1.5] bg-action-teal text-base-surface font-black py-5 rounded-2xl shadow-xl shadow-action-teal/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-[11px] tracking-[0.2em] uppercase"
-                        >
-                            Initialize Session Arena
-                        </button>
+                            <button
+                                onClick={onAdjustSpecs}
+                                className="flex-1 group bg-white/5 hover:bg-white/10 border border-white/20 text-white font-black py-6 rounded-2xl transition-all text-sm tracking-[0.2em] uppercase relative overflow-hidden"
+                            >
+                                <span className="relative z-10">← Reconfigure Parameters</span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/5 to-white/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                            </button>
+                            <button
+                                onClick={onInitialize}
+                                className="flex-[2] group bg-gradient-to-r from-action-teal to-info-blue text-base-surface font-black py-6 rounded-2xl shadow-2xl shadow-action-teal/30 hover:shadow-action-teal/50 hover:scale-[1.02] active:scale-[0.98] transition-all text-sm tracking-[0.3em] uppercase relative overflow-hidden"
+                            >
+                                <span className="relative z-10">🚀 Launch Interview Session</span>
+                                <div className="absolute inset-0 bg-white/20 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                            </button>
+                        </motion.div>
                     </div>
                 </div>
             </motion.div>
