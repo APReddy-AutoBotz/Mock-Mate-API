@@ -43,6 +43,8 @@ export interface SessionControls {
 
 export interface JDInsights {
     source: 'realJD' | 'genericProfile' | 'questionBank' | 'attachment';
+    role?: string;
+    level?: string;
     mustHaveSkills: string[];
     niceToHave: string[];
     domains: string[];
