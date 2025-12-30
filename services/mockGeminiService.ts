@@ -291,8 +291,12 @@ export const generateInterviewPlanV2 = async (
     - MANDATORY: Every persona in the panel MUST be assigned as 'personaFocus' for at least one question.
     - Anti-Repetition: Do NOT ask these recently asked questions: ${JSON.stringify(excludedQuestions.slice(0, 20))}
     
+    
     TASK:
     1. Extract granular skill categories (Must-Have, Nice-to-Have, Domains, Tools, Soft Skills).
+       - IMPORTANT: Only extract keywords and skills that are DIRECTLY RELEVANT to the target role/profile.
+       - If processing an attachment, identify the role first, then extract only skills/technologies applicable to that role.
+       - Avoid generic terms unless they are essential to the profession.
     2. Define weights for exactly these 5 competencies: DomainKnowledge, MethodsTools, ProcessCompliance, ScenarioDecision, BehavioralComms.
     3. Generate the question set.
 
