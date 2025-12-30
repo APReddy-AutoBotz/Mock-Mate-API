@@ -262,15 +262,25 @@ export const generateInterviewPlanV2 = async (
            - For Data roles, use 'sql'.`
         : "Do not include coding questions.";
 
+    // PREMIUM ENHANCEMENT #2 & #5: Enhanced Question Bank Intelligence + Industry Context
     const sourcePrompt = sessionControls.sourceMode === 'question_bank'
         ? `STRICT MODE: The provided text is a QUESTION BANK or STUDY MATERIAL. 
-           - You MUST extract specific questions or technical concepts DIRECTLY from this text.
-           - DO NOT use external sources or standard interview questions unless they are explicitly present in the input.
-           - You may rephrase for readability, but NEVER introduce new topics not found in the material.
-           - If the input is a list of questions, you MUST rotate through them for the plan.`
+           🎯 PREMIUM INTELLIGENCE ACTIVATED:
+           - STEP 1: Identify all core concepts/topics in the material
+           - STEP 2: For each concept, create MULTI-ANGLE questions:
+             * Theoretical: Definition, principles, "What is...?"
+             * Practical: Real-world application, "How would you use...?"
+             * Debugging: Problem-solving, "What's wrong with this...?"
+             * Scenario-based: "In a production environment where..."
+           - DO NOT introduce topics not in the material
+           - You may rephrase for conversational flow, but stay 100% grounded in the source`
         : `EXPLORATION MODE: Use the provided Job Description as a baseline.
-           - Act as a world-class headhunter. Search for RECENT (last 12 months) interview questions for this role.
-           - Identify trending topics and "Industry Truths" not explicitly in the JD but standard for this professional tier.`;
+           🎯 PREMIUM INTELLIGENCE ACTIVATED:
+           - STEP 1: Extract company tech stack and prioritize questions on those tools
+           - STEP 2: Search for RECENT (last 12 months) interview questions for this role
+           - STEP 3: Include industry-standard practices and current trends for this domain
+           - STEP 4: If target company is mentioned, tailor questions to their known challenges/scale
+           - Focus on what top companies (FAANG, unicorns) ask for this level`;
 
     const masterPrompt = `You are an expert interview strategist. Create a comprehensive interview plan.
     
@@ -281,7 +291,18 @@ export const generateInterviewPlanV2 = async (
     ${codingInstruction}
     
     PANEL OF EXPERTS (YOU MUST ROTATE THROUGH THESE IDs):
-    ${selectedPersonas.map(p => `- ID: ${p.id} | Name: ${p.name} (${p.title}): ${p.focus}`).join('\n')}
+    🎯 PREMIUM ENHANCEMENT #3: Each persona has a DISTINCT QUESTIONING STYLE:
+    ${selectedPersonas.map(p => {
+        const styleMap: Record<string, string> = {
+            'p1': '(Asha) - STYLE: Warm, behavioral, "Tell me about a time...", culture-fit focused',
+            'p2': '(Vikram) - STYLE: Technical deep-dive, "How would you implement...", code-level details',
+            's1': '(Maya) - STYLE: Strategic, architecture, "What trade-offs...", system design',
+            'p3': '(Priya) - STYLE: Business impact, "How does this benefit users...", product thinking',
+            'd1': '(Raj) - STYLE: Analytical, metrics, "How would you measure...", data-driven',
+            'ops1': '(Arjun) - STYLE: Operational, scalability, "How would this perform at scale...", reliability'
+        };
+        return `- ID: ${p.id} | Name: ${p.name} (${p.title}) | Focus: ${p.focus}\n  ${styleMap[p.id] || 'STYLE: Professional, balanced questioning'}`;
+    }).join('\n')}
 
     INPUT MATERIAL:
     ${jdText ? `"""\n${jdText}\n"""` : 'None'}
@@ -297,8 +318,21 @@ export const generateInterviewPlanV2 = async (
        - IMPORTANT: Only extract keywords and skills that are DIRECTLY RELEVANT to the target role/profile.
        - If processing an attachment, identify the role first, then extract only skills/technologies applicable to that role.
        - Avoid generic terms unless they are essential to the profession.
+    
     2. Define weights for exactly these 5 competencies: DomainKnowledge, MethodsTools, ProcessCompliance, ScenarioDecision, BehavioralComms.
-    3. Generate the question set.
+    
+    3. Generate the question set with PREMIUM INTELLIGENCE:
+       🎯 ENHANCEMENT #1 - SMART PROGRESSION:
+       - Start with fundamentals (L1-L2 difficulty) to establish baseline
+       - Progress to intermediate scenarios (L3) in the middle
+       - Finish with advanced/system-level (L4-L5) to test ceiling
+       - Distribute difficulty as: 20% easy, 50% medium, 30% hard
+       
+       🎯 ENHANCEMENT #4 - QUALITY VALIDATION:
+       - Every question MUST have 3-5 specific, measurable expectedSignals
+       - Each expectedSignal should be a concrete thing the candidate might say/do
+       - The 'why' field must explain what competency this tests
+       - Ensure questions are answerable in the allocated time (90-120 seconds)
 
     OUTPUT SCHEMA (JSON):
     {
@@ -322,12 +356,13 @@ export const generateInterviewPlanV2 = async (
         {
           "phase": "One of: knowledge, process, scenario, behavioral, coding",
           "competency": "One of: DomainKnowledge, MethodsTools, ProcessCompliance, ScenarioDecision, BehavioralComms",
-          "difficulty": "L1-L5",
-          "question": "string",
-          "expectedSignals": ["string"],
-          "personaFocus": "string (use Persona ID from panel)",
-          "why": "string",
-          "language": "string (e.g., 'python', 'java', 'sql', 'rpa', 'cpp' - only for phase: coding)"
+          "difficulty": "L1-L5 (distribute: 20% L1-L2, 50% L3, 30% L4-L5 for smart progression)",
+          "question": "string (phrased in the persona's distinct style)",
+          "expectedSignals": ["REQUIRED: 3-5 specific, measurable signals - what the candidate should mention"],
+          "personaFocus": "string (use Persona ID from panel, ensure every persona gets at least 1 question)",
+          "why": "string (explain which competency this tests and why it matters for the role)",
+          "language": "string (e.g., 'python', 'java', 'sql', 'rpa', 'cpp' - only for phase: coding)",
+          "timeAllocation": "number (estimated seconds: 60-180, ensure realistic for complexity)"
         }
       ],
       "meta": { "estimatedDuration": "string", "focusAreas": ["string"] }
