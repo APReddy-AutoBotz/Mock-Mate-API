@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { JDInsights, CompetencyWeight, QuestionBlueprint } from '../types';
 import React from 'react';
 
